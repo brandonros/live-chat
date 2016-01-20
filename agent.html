@@ -1,0 +1,37 @@
+<!doctype html>
+<html>
+	<head>
+	</head>
+
+	<body>
+		<div id="clients"></div>
+
+		<textarea id="input"></textarea>
+
+		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.4/socket.io.min.js"></script>
+		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0-beta1/jquery.min.js"></script>
+
+		<script type="text/javascript">
+			var socket = io('http://localhost:3000/');
+
+			socket.emit('join', { 'room': 'agent' });
+			socket.emit('client');
+
+			socket.on('message', function (data) {
+				console.log(data);
+			});
+
+			socket.on('clients', function (data) {
+				console.log(data);
+			});
+
+			$('#input').on('keypress', function (event) {
+				if (event['which'] === 13) {
+					var value = $(this).val();
+					var active_client_id = null;
+					socket.emit('message', { 'room': active_client_id, 'message': value });
+				}
+			});
+		</script>
+	</body>
+</html>
