@@ -7,18 +7,27 @@
 		<textarea id="input"></textarea>
 
 		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.4/socket.io.min.js"></script>
+		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0-beta1/jquery.min.js"></script>
 
 		<script type="text/javascript">
+			function s4() {
+				return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
+			}
+				
+			function guid() {
+				return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
+			}
+
 			var client_id = localStorage.getItem('client_id');
 
 			if (!client_id) {
-				client_id = uuid();
+				client_id = 'client:' + guid();
 				localStorage.setItem('client_id', client_id);
 			}
 
 			var socket = io('http://localhost:3000/');
 
-			socket.emit('join', { 'room': client_id });
+			socket.emit('subscribe', { 'room': client_id });
 
 			socket.on('message', function (data) {
 				console.log(data);

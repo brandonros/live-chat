@@ -12,26 +12,61 @@
 		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0-beta1/jquery.min.js"></script>
 
 		<script type="text/javascript">
-			var socket = io('http://localhost:3000/');
+			function init_socket() {
+				var socket = io('http://localhost:3000/');
 
-			socket.emit('join', { 'room': 'agent' });
-			socket.emit('client');
+				socket.emit('subscribe', { 'room': 'agent' });
+				socket.emit('clients');
 
-			socket.on('message', function (data) {
-				console.log(data);
-			});
+				socket.on('message', function (data) {
+					console.log(data);
+				});
 
-			socket.on('clients', function (data) {
-				console.log(data);
-			});
+				socket.on('clients', function (data) {
+					draw_clients(data);
+				});
 
-			$('#input').on('keypress', function (event) {
-				if (event['which'] === 13) {
-					var value = $(this).val();
-					var active_client_id = null;
-					socket.emit('message', { 'room': active_client_id, 'message': value });
-				}
-			});
+				socket.on('disconnection', function (data) {
+					remove_client(data['client']);
+				});
+
+				socket.on('subscription', function (data) {
+					add_client(data['client']);
+				});
+			}
+
+			function init_events() {
+				$('#input').on('keypress', function (event) {
+					if (event['which'] === 13) {
+						var value = $(this).val();
+						var active_client_id = null;
+						socket.emit('message', { 'room': active_client_id, 'message': value });
+					}
+				});
+			}
+
+			function draw_clients(clients) {
+				var html = '';
+
+				clients.forEach(function (client) {
+					html += '<div><input type="radio" name="active-client" value="' + client + '"> ' + client + '</div>';
+				});
+
+				$('#clients').html(html);
+			}
+
+			function add_client(client) {
+				var html = '<div><input type="radio" name="active-client" value="' + client + '"> ' + client + '</div>';
+
+				$('#clients').append(html);
+			}
+
+			function remove_client(client) {
+				$('input[name="active-client"][value="' + client + '"]').parents('div').remove();
+			}
+
+			init_events();
+			init_socket();
 		</script>
 	</body>
 </html>

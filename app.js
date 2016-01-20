@@ -13,20 +13,30 @@ function init_socket(port) {
 	var server = io(port);
 
 	server.on('connection', function (socket) {
-		client.on('message', function (data) {
+		socket.on('message', function (data) {
 			io.to(data['room']).emit('message', data);
 		});
 
-		client.on('clients', function (data) {
-			client.emit('clients', server['sockets']);
+		socket.on('clients', function (data) {
+			var clients = Object.keys(server['sockets']['adapter']['rooms']).filter(function (key) {
+				return key.indexOf('client:') !== -1;
+			});
+
+			socket.emit('clients', clients);
 		});
 
-		client.on('subscribe', function (data) {
+		socket.on('subscribe', function (data) {
 			socket.join(data['room']);
 
 			if (data['room'] !== 'agent') {
-				io.to('agent').emit('subscribe', { 'client': data['client_id'] });
+				socket['client_id'] = data['room'];
+
+				server.to('agent').emit('subscription', { 'client': socket['client_id'] });
 			}
+		});
+
+		socket.on('disconnect', function () {
+			server.to('agent').emit('disconnection', { 'client': socket['client_id'] });
 		});
 	});
 
