@@ -12,14 +12,16 @@
 		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0-beta1/jquery.min.js"></script>
 
 		<script type="text/javascript">
-			function init_socket() {
-				var socket = io('http://localhost:3000/');
+			var socket;
 
-				socket.emit('subscribe', { 'room': 'agent' });
+			function init_socket() {
+				socket = io('http://localhost:3000/');
+
+				socket.emit('subscribe', { 'agent_name': 'Brandon', 'room': 'agents' });
 				socket.emit('clients');
 
 				socket.on('message', function (data) {
-					console.log(data);
+					add_message(data['client_id'], data['message']);
 				});
 
 				socket.on('clients', function (data) {
@@ -38,9 +40,13 @@
 			function init_events() {
 				$('#input').on('keypress', function (event) {
 					if (event['which'] === 13) {
-						var value = $(this).val();
-						var active_client_id = null;
+						var input = $(this);
+						var value = input.val();
+
+						var active_client_id = $('input[name="active-client"]:checked').val();
 						socket.emit('message', { 'room': active_client_id, 'message': value });
+						
+						input.val('');
 					}
 				});
 			}
@@ -63,6 +69,22 @@
 
 			function remove_client(client) {
 				$('input[name="active-client"][value="' + client + '"]').parents('div').remove();
+			}
+
+			function add_message(client_id, message) {
+				var html = '';
+
+				html += '<div>' + client_id + ' - ' + message + '</div>';
+
+				var container = $('.messages[data-client_id="' + client_id + '"]');
+
+				if (container.length === 0) {
+					$('body').append('<div class="messages" data-client_id="' + client_id + '">' + html + '</div>');
+				}
+
+				else {
+					container.append(html);
+				}
 			}
 
 			init_events();

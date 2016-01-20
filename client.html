@@ -4,12 +4,17 @@
 	</head>
 
 	<body>
+		<div id="messages"></div>
+
 		<textarea id="input"></textarea>
 
 		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.4/socket.io.min.js"></script>
 		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0-beta1/jquery.min.js"></script>
 
 		<script type="text/javascript">
+			var client_id;
+			var socket;
+
 			function s4() {
 				return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
 			}
@@ -18,27 +23,47 @@
 				return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
 			}
 
-			var client_id = localStorage.getItem('client_id');
+			function init_client_id() {
+				client_id = localStorage.getItem('client_id');
 
-			if (!client_id) {
-				client_id = 'client:' + guid();
-				localStorage.setItem('client_id', client_id);
+				if (!client_id) {
+					client_id = 'client:' + guid();
+					localStorage.setItem('client_id', client_id);
+				}
 			}
 
-			var socket = io('http://localhost:3000/');
+			function init_socket() {
+				socket = io('http://localhost:3000/');
 
-			socket.emit('subscribe', { 'room': client_id });
+				socket.emit('subscribe', { 'room': client_id });
 
-			socket.on('message', function (data) {
-				console.log(data);
-			});
+				socket.on('message', function (data) {
+					add_message(data);
+				});
+			}
 
-			$('#input').on('keypress', function (event) {
-				if (event['which'] === 13) {
-					var value = $(this).val();
-					socket.emit('message', { 'room': 'agents', 'message': value });
-				}
-			});
+			function init_events() {
+				$('#input').on('keypress', function (event) {
+					if (event['which'] === 13) {
+						var input = $(this);
+						var value = input.val();
+						socket.emit('message', { 'room': 'agents', 'message': value });
+						input.val('');
+					}
+				});
+			}
+
+			function add_message(data) {
+				var html = '';
+
+				html += '<div>' + data['agent_name'] + ' - ' + data['message'] + '</div>';
+
+				$('#messages').append(html);
+			}
+
+			init_client_id();
+			init_events();
+			init_socket();
 		</script>
 	</body>
 </html>

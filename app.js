@@ -14,7 +14,13 @@ function init_socket(port) {
 
 	server.on('connection', function (socket) {
 		socket.on('message', function (data) {
-			io.to(data['room']).emit('message', data);
+			if (data['room'] === 'agents') {
+				server.to(data['room']).emit('message', { 'client_id': socket['client_id'], 'message': data['message'] });
+			}
+
+			else {
+				server.to(data['room']).emit('message', { 'agent_name': socket['agent_name'], 'message': data['message'] });
+			}
 		});
 
 		socket.on('clients', function (data) {
@@ -28,15 +34,19 @@ function init_socket(port) {
 		socket.on('subscribe', function (data) {
 			socket.join(data['room']);
 
-			if (data['room'] !== 'agent') {
+			if (data['room'] === 'agents') {
+				socket['agent_name'] = data['agent_name'];
+			}
+
+			else {
 				socket['client_id'] = data['room'];
 
-				server.to('agent').emit('subscription', { 'client': socket['client_id'] });
+				server.to('agents').emit('subscription', { 'client': socket['client_id'] });
 			}
 		});
 
 		socket.on('disconnect', function () {
-			server.to('agent').emit('disconnection', { 'client': socket['client_id'] });
+			server.to('agents').emit('disconnection', { 'client': socket['client_id'] });
 		});
 	});
 
