@@ -1,69 +1,28 @@
 <!doctype html>
 <html>
 	<head>
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.min.css">
+		<link rel="stylesheet" href="client.css">
 	</head>
 
 	<body>
-		<div id="messages"></div>
+		<div id="live_chat_floating_container">
+			<div id="live_chat_container" class="hide">
+				<div id="live_chat_messages"></div>
 
-		<textarea id="input"></textarea>
+				<div id="live_chat_input_container">
+					<input type="text" id="live_chat_input">
+				</div>
+			</div>
+
+			<button id="live_chat_button">
+				<i class="fa fa-fw fa-comments"></i> Chat
+			</button>
+		</div>
 
 		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.4/socket.io.min.js"></script>
 		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0-beta1/jquery.min.js"></script>
 
-		<script type="text/javascript">
-			var client_id;
-			var socket;
-
-			function s4() {
-				return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
-			}
-				
-			function guid() {
-				return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
-			}
-
-			function init_client_id() {
-				client_id = localStorage.getItem('client_id');
-
-				if (!client_id) {
-					client_id = 'client:' + guid();
-					localStorage.setItem('client_id', client_id);
-				}
-			}
-
-			function init_socket() {
-				socket = io('http://localhost:3000/');
-
-				socket.emit('subscribe', { 'room': client_id });
-
-				socket.on('message', function (data) {
-					add_message(data);
-				});
-			}
-
-			function init_events() {
-				$('#input').on('keypress', function (event) {
-					if (event['which'] === 13) {
-						var input = $(this);
-						var value = input.val();
-						socket.emit('message', { 'room': 'agents', 'message': value });
-						input.val('');
-					}
-				});
-			}
-
-			function add_message(data) {
-				var html = '';
-
-				html += '<div>' + data['agent_name'] + ' - ' + data['message'] + '</div>';
-
-				$('#messages').append(html);
-			}
-
-			init_client_id();
-			init_events();
-			init_socket();
-		</script>
+		<script type="text/javascript" src="client.js"></script>
 	</body>
 </html>

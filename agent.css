@@ -1,0 +1,27 @@
+#clients {
+	float: left;
+	width: 33%;
+	height: 100%;
+	border-right: 1px solid black;
+}
+
+#message_container {
+	width: 66%;
+	float: left;
+}
+
+#input {
+	width: 98%;
+}
+
+#input_container {
+	position: absolute;
+	width: 100%;
+	bottom: 10px;
+	left: 0px;
+	padding: 0 5px;
+}
+
+.hide {
+	display: none;
+}

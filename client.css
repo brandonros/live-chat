@@ -1,0 +1,38 @@
+#live_chat_floating_container {
+	position: absolute;
+	bottom: 10px;
+	right: 10px;
+}
+
+#live_chat_container {
+	border: 1px solid black;
+	width: 250px;
+	padding: 5px;
+	margin-bottom: 5px;
+}
+
+#live_chat_messages {
+	height: 250px;
+	overflow-y: scroll;
+}
+
+#live_chat_input {
+	width: 100%;
+}
+
+#live_chat_button {
+	float: right;
+}
+
+#live_chat_input_container {
+	border-top: 1px solid black;
+	padding: 5px;
+}
+
+.live-chat-message {
+	margin-bottom: 5px;
+}
+
+.hide {
+	display: none;
+}

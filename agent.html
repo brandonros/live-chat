@@ -1,94 +1,21 @@
 <!doctype html>
 <html>
 	<head>
+		<link rel="stylesheet" href="agent.css">
 	</head>
 
 	<body>
 		<div id="clients"></div>
 
-		<textarea id="input"></textarea>
+		<div id="message_container"></div>
+
+		<div id="input_container">
+			<input type="text" id="input">
+		</div>
 
 		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.4/socket.io.min.js"></script>
 		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0-beta1/jquery.min.js"></script>
 
-		<script type="text/javascript">
-			var socket;
-
-			function init_socket() {
-				socket = io('http://localhost:3000/');
-
-				socket.emit('subscribe', { 'agent_name': 'Brandon', 'room': 'agents' });
-				socket.emit('clients');
-
-				socket.on('message', function (data) {
-					add_message(data['client_id'], data['message']);
-				});
-
-				socket.on('clients', function (data) {
-					draw_clients(data);
-				});
-
-				socket.on('disconnection', function (data) {
-					remove_client(data['client']);
-				});
-
-				socket.on('subscription', function (data) {
-					add_client(data['client']);
-				});
-			}
-
-			function init_events() {
-				$('#input').on('keypress', function (event) {
-					if (event['which'] === 13) {
-						var input = $(this);
-						var value = input.val();
-
-						var active_client_id = $('input[name="active-client"]:checked').val();
-						socket.emit('message', { 'room': active_client_id, 'message': value });
-						
-						input.val('');
-					}
-				});
-			}
-
-			function draw_clients(clients) {
-				var html = '';
-
-				clients.forEach(function (client) {
-					html += '<div><input type="radio" name="active-client" value="' + client + '"> ' + client + '</div>';
-				});
-
-				$('#clients').html(html);
-			}
-
-			function add_client(client) {
-				var html = '<div><input type="radio" name="active-client" value="' + client + '"> ' + client + '</div>';
-
-				$('#clients').append(html);
-			}
-
-			function remove_client(client) {
-				$('input[name="active-client"][value="' + client + '"]').parents('div').remove();
-			}
-
-			function add_message(client_id, message) {
-				var html = '';
-
-				html += '<div>' + client_id + ' - ' + message + '</div>';
-
-				var container = $('.messages[data-client_id="' + client_id + '"]');
-
-				if (container.length === 0) {
-					$('body').append('<div class="messages" data-client_id="' + client_id + '">' + html + '</div>');
-				}
-
-				else {
-					container.append(html);
-				}
-			}
-
-			init_events();
-			init_socket();
-		</script>
+		<script type="text/javascript" src="agent.js"></script>
 	</body>
 </html>
