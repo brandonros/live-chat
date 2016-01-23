@@ -3,9 +3,6 @@ var socket;
 function init_socket() {
 	socket = io('http://localhost:3000/');
 
-	socket.emit('subscribe', { 'agent_name': 'Brandon', 'room': 'agents' });
-	socket.emit('clients');
-
 	socket.on('message', function (data) {
 		add_message(data['client_id'], data['client_id'], data['message']);
 	});
@@ -21,6 +18,26 @@ function init_socket() {
 	socket.on('subscription', function (data) {
 		add_client(data['client']);
 	});
+
+	socket.on('messages', function (data) {
+		var client_id = data['client_id'];
+		var messages = data['messages'];
+
+		$('.messages[data-client_id="' + client_id + '"]').html('');
+
+		messages.forEach(function (m) {
+			if (m['to'] === 'agents') {
+				add_message(m['from'], m['from'], m['message']);
+			}
+
+			else {
+				add_message(m['from'], m['to'], m['message']);
+			}
+		});
+	});
+
+	socket.emit('subscribe', { 'agent_name': 'Brandon', 'room': 'agents' });
+	socket.emit('clients');
 }
 
 function init_events() {
@@ -47,6 +64,10 @@ function init_events() {
 
 		$('.messages').addClass('hide');
 		$('.messages[data-client_id="' + client_id + '"]').removeClass('hide');
+
+		$('#input').focus();
+
+		socket.emit('messages', { 'client_id': client_id });
 	});
 }
 
@@ -69,9 +90,7 @@ function remove_client(client) {
 }
 
 function add_message(name, client_id, message) {
-	var html = '';
-
-	html += '<div>' + name + ': ' + message + '</div>';
+	var html = '<div>' + name + ': ' + message + '</div>';
 
 	var container = $('.messages[data-client_id="' + client_id + '"]');
 

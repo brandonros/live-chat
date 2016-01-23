@@ -32,6 +32,22 @@ function init_socket() {
 			container.removeClass('hide');
 		}
 	});
+
+	socket.on('messages', function (data) {
+		$('#live_chat_messages').html('');
+
+		var messages = data['messages'];
+
+		messages.forEach(function (m) {
+			if (m['from'] === client_id) {
+				add_message('You', m['message']);
+			}
+
+			else {
+				add_message(m['from'], m['message']);
+			}
+		});
+	});
 }
 
 function init_events() {
@@ -47,6 +63,8 @@ function init_events() {
 	});
 
 	$('#live_chat_button').on('click', function (event) {
+		socket.emit('messages', { 'client_id': client_id });
+
 		$('#live_chat_container').removeClass('hide');
 		$('#live_chat_input').focus();
 	});
