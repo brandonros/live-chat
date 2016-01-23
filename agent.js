@@ -1,4 +1,5 @@
 var socket;
+var agent_name = 'Brandon';
 
 function init_socket() {
 	socket = io('http://localhost:3000/');
@@ -36,7 +37,7 @@ function init_socket() {
 		});
 	});
 
-	socket.emit('subscribe', { 'agent_name': 'Brandon', 'room': 'agents' });
+	socket.emit('subscribe', { 'agent_name': agent_name, 'room': 'agents' });
 	socket.emit('clients');
 }
 
@@ -51,7 +52,7 @@ function init_events() {
 			
 			input.val('');
 
-			add_message('Brandon', active_client_id, value);
+			add_message(agent_name, active_client_id, value);
 		}
 	});
 
